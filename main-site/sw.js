@@ -41,7 +41,7 @@
 //    does not already have, a few at a time. Which ones is art/list.json,
 //    written by scripts/vendor-pokemon.mjs.
 
-const VERSION = "pokeguessr-v2";
+const VERSION = "pokeguessr-v3";
 const ART_VERSION = "pokeguessr-art-v1";
 
 const SHELL = `pokeguessr-shell-${VERSION}`;
