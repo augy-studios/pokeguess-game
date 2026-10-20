@@ -1,7 +1,7 @@
 {
     "name": "PokéGuessr by UwU Apps",
     "short_name": "PokéGuessr",
-    "description": "Name the Pokémon from its silhouette, or from a pie chart of its colours. Play solo or with friends.",
+    "description": "Name the Pokémon from its silhouette, or from a pie chart of its colours.",
     "icons": [{
             "src": "XPG-192.png",
             "type": "image/png",
