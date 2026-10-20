@@ -6,5 +6,32 @@
     "rewrites": [{
         "source": "/",
         "destination": "/"
+    }, {
+        "source": "/r/:id([A-Za-z0-9]{8})",
+        "destination": "/"
+    }],
+    "functions": {
+        "api/game/start.js": {
+            "includeFiles": "js/{pokemon,rules,seed}.js"
+        },
+        "api/game/finish.js": {
+            "includeFiles": "js/{pokemon,rules,seed,quiz,log,score}.js"
+        },
+        "api/game/submit.js": {
+            "includeFiles": "js/{pokemon,rules,seed,quiz,log,score}.js"
+        },
+        "api/replay/create.js": {
+            "includeFiles": "js/{pokemon,rules,seed,quiz,log,score}.js"
+        }
+    },
+    "headers": [{
+        "source": "/sw.js",
+        "headers": [{ "key": "Cache-Control", "value": "no-cache" }]
+    }, {
+        "source": "/art/list.json",
+        "headers": [{ "key": "Cache-Control", "value": "no-cache" }]
+    }, {
+        "source": "/art/(.*).webp",
+        "headers": [{ "key": "Cache-Control", "value": "public, max-age=604800" }]
     }]
 }

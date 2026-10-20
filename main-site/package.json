@@ -1,0 +1,10 @@
+{
+  "name": "pokeguessr",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "PokéGuessr by UwU Apps: the PWA and its leaderboard API, deployed on Vercel.",
+  "engines": {
+    "node": ">=20"
+  }
+}

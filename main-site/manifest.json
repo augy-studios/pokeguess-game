@@ -1,7 +1,7 @@
 {
-    "name": "Pokeguess Game by UwU Apps",
-    "short_name": "Pokeguess Game",
-    "description": "A simple pokeguessr app; view live pokeguessr at a glance!",
+    "name": "PokéGuessr by UwU Apps",
+    "short_name": "PokéGuessr",
+    "description": "Name the Pokémon from its silhouette, or from a pie chart of its colours. Play solo or with friends.",
     "icons": [{
             "src": "XPG-192.png",
             "type": "image/png",
@@ -37,8 +37,7 @@
     "scope": "/",
     "lang": "en",
     "categories": [
-        "entertainment",
-        "lifestyle",
-        "utilities"
+        "games",
+        "entertainment"
     ]
 }
