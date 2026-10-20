@@ -10,7 +10,7 @@ import {
   COUNT_PRESETS,
   MODE_LABELS,
   FEEDBACK_MS,
-  HINT_MAX,
+  hintLimit,
   maxCount,
   difficultyById,
   describeTypes,
@@ -278,7 +278,7 @@ export function guessIsFinal(tries, question, value) {
 // With "ask before taking a hint" on, the first press only says what the
 // hint costs, and a second within a few seconds takes it.
 export function takeHint(tries, question) {
-  if (!question.retries || tries.hints >= HINT_MAX) return;
+  if (!question.retries || tries.hints >= hintLimit(question)) return;
   if (getSettings().confirm_hints && !tries.armed) {
     tries.armed = setTimeout(() => (tries.armed = null), QUIT_ARM_MS);
     view.setFeedback(`Press Hint again to take it. Each hint costs ${HINT_COST}% of this Pokémon's points.`);

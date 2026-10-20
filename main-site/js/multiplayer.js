@@ -35,7 +35,7 @@ import { qrToSvg } from "./qr.js";
 import { api } from "./api.js";
 import { copyText, hydrateIcons, store } from "./ui.js";
 import { getSettings } from "./settings.js";
-import { MAX_PLAYERS, MODE_LABELS, MP_MODES, turnLimitMs, isTypeMask, difficultyById, maxCount } from "./rules.js";
+import { MAX_PLAYERS, MODE_LABELS, MP_MODES, turnLimitMs, hintLimit, isTypeMask, difficultyById, maxCount } from "./rules.js";
 import { newSeed, seedFromText } from "./seed.js";
 import { buildGame, isCorrect, pokemonName } from "./quiz.js";
 import { entry, packLog, unpackLog, cleanTyped, isAnswer, LOG_MAX_CHARS, NONE, SKIP, TIMEOUT } from "./log.js";
@@ -373,8 +373,10 @@ function applyAnswer(seat, pick, ms, help) {
     if (!q.options && (typeof pick !== "string" || !cleanTyped(pick))) return;
   }
   if (!Number.isFinite(ms) || ms < 0) return;
-  // entry() caps and cleans the counts; only Expert keeps them.
-  const e = entry(pick, Math.min(ms, turnLimitMs(room.plan.difficulty)), q.retries ? help : undefined);
+  // entry() cleans the counts; only Hard and Expert keep them, and no more
+  // hints than the question has to give.
+  const kept = q.retries ? { misses: help.misses, hints: Math.min(Number(help.hints) || 0, hintLimit(q)) } : undefined;
+  const e = entry(pick, Math.min(ms, turnLimitMs(room.plan.difficulty)), kept);
   room.players[seat].entries[room.turn] = e;
 
   if (room.format === "duel" && isAnswer(e.pick) && isCorrect(q, e.pick)) {

@@ -567,6 +567,18 @@ body {
 }
 .art-stage.colors .art-pie { display: block; }
 .art-stage.colors .art-canvas { visibility: hidden; }
+/* Expert's last hint: the silhouette, drawn in the top left of the canvas,
+   and the pie moved down to the bottom right beside it. */
+.art-stage.colors.silhouette .art-canvas {
+  visibility: visible;
+  animation: reveal-in 0.22s ease;
+}
+.art-stage.colors.silhouette .art-pie {
+  inset: auto 2% 2% auto;
+  width: 42%;
+  height: 42%;
+  transition: width 0.22s ease, height 0.22s ease;
+}
 .card .art-note {
   position: absolute;
   inset: auto 10px 10px;

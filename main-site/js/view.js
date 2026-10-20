@@ -6,9 +6,9 @@
 
 import { POKEMON } from "./pokemon.js";
 import { ART_COLORS } from "./colors.js";
-import { artUrl, pokemonName, matchAnswer, isCorrect, hintsFor, NAME_HINTS_FROM } from "./quiz.js";
+import { artUrl, pokemonName, matchAnswer, isCorrect, hintsFor, NAME_HINTS_FROM, NAME_HINTS_TO } from "./quiz.js";
 import { NONE, SKIP, TIMEOUT, isAnswer } from "./log.js";
-import { HINT_MAX } from "./rules.js";
+import { hintLimit } from "./rules.js";
 import { helpPercent } from "./score.js";
 import { escapeHtml } from "./ui.js";
 
@@ -70,19 +70,25 @@ export function pick(value) {
 
 const ink = () => getComputedStyle(document.documentElement).getPropertyValue("--ink").trim() || "#121815";
 
-// Draws `img` fitted into the canvas, filled flat with the page's ink colour
-// when `silhouette` is set. Read each time, so a theme changed mid game is
-// followed.
-function paint(img, silhouette) {
+// The whole stage, and Expert's silhouette hint: the top left, clear of the
+// pie, which moves to the bottom right (see .art-stage.silhouette).
+const FULL = { x: 0.04, y: 0.04, size: 0.92 };
+const BESIDE_PIE = { x: 0.03, y: 0.03, size: 0.6 };
+
+// Draws `img` fitted into `box` (fractions of the canvas) and centred in it,
+// filled flat with the page's ink colour when `silhouette` is set. Read each
+// time, so a theme changed mid game is followed.
+function paint(img, silhouette, box = FULL) {
   const canvas = $("artCanvas");
   const ctx = canvas.getContext("2d");
   const { width: W, height: H } = canvas;
   ctx.clearRect(0, 0, W, H);
   ctx.globalCompositeOperation = "source-over";
-  const scale = Math.min(W / img.naturalWidth, H / img.naturalHeight) * 0.92;
+  const side = box.size * Math.min(W, H);
+  const scale = Math.min(side / img.naturalWidth, side / img.naturalHeight);
   const w = img.naturalWidth * scale;
   const h = img.naturalHeight * scale;
-  ctx.drawImage(img, (W - w) / 2, (H - h) / 2, w, h);
+  ctx.drawImage(img, box.x * W + (side - w) / 2, box.y * H + (side - h) / 2, w, h);
   if (silhouette) {
     ctx.globalCompositeOperation = "source-in";
     ctx.fillStyle = ink();
@@ -191,7 +197,7 @@ export function showQuestion(question, { interactive = true, prompt, showKeys = 
   setFeedback("");
   $("artNote").textContent = "";
   stage.classList.toggle("colors", question.colors === true);
-  stage.classList.remove("revealed");
+  stage.classList.remove("revealed", "silhouette");
   showHints(question, 0);
   $("hintBtn").classList.toggle("hidden", !question.retries);
 
@@ -264,7 +270,7 @@ function revealArt(index) {
     (img) => {
       if (token !== shown) return;
       paint(img, false);
-      stage.classList.remove("colors");
+      stage.classList.remove("colors", "silhouette");
       stage.classList.add("revealed", "loaded");
     },
     () => {}
@@ -279,25 +285,42 @@ export function setInteractive(on) {
     });
   $("typedInput").disabled = !on;
   $("typedBtn").disabled = !on;
-  $("hintBtn").disabled = !on || hintsShown >= HINT_MAX;
+  $("hintBtn").disabled = !on || hintsShown >= hintsMax;
   if (on && !$("typedForm").classList.contains("hidden")) $("typedInput").focus({ preventScroll: true });
 }
 
 /* ---- Hard and Expert's retries and hints ---- */
 
 let hintsShown = 0;
+let hintsMax = 0;
 
 // The first `n` of the question's hints, under the answer box, and the hint
 // button saying what is left.
 export function showHints(question, n) {
   hintsShown = n;
+  hintsMax = hintLimit(question);
   const list = $("hints");
   list.innerHTML = hintsFor(question, n)
-    .map((text, i) => `<li><span class="${i >= NAME_HINTS_FROM ? "hint-name" : ""}">${escapeHtml(text)}</span></li>`)
+    .map((text, i) => `<li><span class="${i >= NAME_HINTS_FROM && i < NAME_HINTS_TO ? "hint-name" : ""}">${escapeHtml(text)}</span></li>`)
     .join("");
   list.classList.toggle("hidden", n === 0);
-  $("hintLabel").textContent = n >= HINT_MAX ? "No more hints" : `Hint ${n + 1} of ${HINT_MAX}`;
-  if (n >= HINT_MAX) $("hintBtn").disabled = true;
+  $("hintLabel").textContent = n >= hintsMax ? "No more hints" : `Hint ${n + 1} of ${hintsMax}`;
+  if (n >= hintsMax) $("hintBtn").disabled = true;
+}
+
+// Expert's last hint: the silhouette in the top left of the stage, with the
+// pie moved down to the bottom right beside it.
+function showSilhouette(index) {
+  const token = shown;
+  const stage = $("artStage");
+  artImage(index).then(
+    (img) => {
+      if (token !== shown || stage.classList.contains("revealed")) return;
+      paint(img, true, BESIDE_PIE);
+      stage.classList.add("silhouette");
+    },
+    () => {}
+  );
 }
 
 const worthLine = (help) => `This Pokémon is now worth ${helpPercent(help)}% of its points.`;
@@ -306,6 +329,7 @@ const worthLine = (help) => `This Pokémon is now worth ${helpPercent(help)}% of
 export function hintTaken(question, help) {
   showHints(question, help.hints);
   setFeedback(`Hint ${help.hints}. ${worthLine(help)}`);
+  if (question.colors && help.hints >= hintLimit(question)) showSilhouette(question.answer);
   $("typedInput").focus({ preventScroll: true });
 }
 
@@ -399,11 +423,13 @@ function describe(question, value, right, answer) {
 // The silhouette follows the page's ink, so a theme change redraws it.
 function repaint() {
   const stage = $("artStage");
-  if (stage.classList.contains("colors") || stage.classList.contains("revealed")) return;
+  if (stage.classList.contains("revealed")) return;
+  const beside = stage.classList.contains("silhouette");
+  if (stage.classList.contains("colors") && !beside) return;
   const token = shown;
   const index = currentIndex;
   if (index < 0) return;
-  artImage(index).then((img) => token === shown && paint(img, true), () => {});
+  artImage(index).then((img) => token === shown && paint(img, true, beside ? BESIDE_PIE : FULL), () => {});
 }
 
 export function initView() {

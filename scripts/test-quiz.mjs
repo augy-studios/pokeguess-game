@@ -7,9 +7,9 @@
 
 import { POKEMON } from "../main-site/js/pokemon.js";
 import { ART_COLORS } from "../main-site/js/colors.js";
-import { ALL_TYPES, DIFFICULTIES, TYPES, maxCount, typeMask, typePool, MS_MAX, COUNT_MAX } from "../main-site/js/rules.js";
+import { ALL_TYPES, DIFFICULTIES, TYPES, maxCount, typeMask, typePool, hintLimit, MS_MAX, COUNT_MAX } from "../main-site/js/rules.js";
 import { newSeed, parseSeed, seedFromText, buildSeed, encodeTypes, decodeTypes, typesKey } from "../main-site/js/seed.js";
-import { buildGame, matchAnswer, isCorrect, judgeGuess, normaliseName, hintsFor } from "../main-site/js/quiz.js";
+import { buildGame, matchAnswer, isCorrect, judgeGuess, normaliseName, hintsFor, SILHOUETTE_HINT } from "../main-site/js/quiz.js";
 import { packLog, unpackLog, entry, SKIP, TIMEOUT, NONE } from "../main-site/js/log.js";
 import { scoreLog, pokemonPoints, speedBonus, lengthPercent, helpPercent } from "../main-site/js/score.js";
 
@@ -156,6 +156,14 @@ check(
   JSON.stringify(typedBack)
 );
 check("choice pick in a typed game refused", unpackLog(packLog([entry(1, 500), ...typedEntries.slice(1)]), hard) === null);
+const eighth = [entry("Pikachu", 4000, { hints: 8 }), entry(SKIP, 100), entry(SKIP, 100)];
+check("Hard has seven hints, so an eighth is refused", unpackLog(packLog(eighth), hard) === null);
+const expert3 = buildGame(buildSeed("X", ALL_TYPES, 3, "BCDFGHJK"));
+check("Expert's eighth hint, the silhouette, reads back", unpackLog(packLog(eighth), expert3)?.[0].hints === 8);
+check("hint limits", hintLimit(hard.difficulty) === 7 && hintLimit(expert3.difficulty) === 8 && hintLimit(expert3.questions[0]) === 8);
+const expertHints = hintsFor(expert3.questions[0], 8);
+check("Expert's eighth hint is the silhouette", expertHints.length === 8 && expertHints[7] === SILHOUETTE_HINT, expertHints.at(-1));
+check("Hard has no eighth hint", hintsFor(hard.questions[0], 8).length === 7);
 
 /* ---- scoring ---- */
 check("speed full", speedBonus(0, normal.speed) === 100 && speedBonus(2000, normal.speed) === 100);

@@ -66,7 +66,9 @@ species in the wrong form ("Vulpix" for Alolan Vulpix) costs nothing and says
 which it was. There are seven hints, one at a time: generation and region,
 types, category ("the Mouse Pokémon"), its place in its evolution family and
 what kind of form it is, its Pokédex colour, height and weight, the shape of
-its name, then every other letter. Settings can ask before each hint.
+its name, then every other letter. Expert has an eighth: the silhouette,
+drawn beside the pie, which moves to a corner to make room. Settings can ask
+before each hint.
 
 Typed answers forgive case, accents, punctuation, the order of a form's words
 (`alolan vulpix`, `Vulpix-Alola`, `charizard mega x`, `gmax pikachu`), ♀ and ♂

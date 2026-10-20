@@ -65,8 +65,12 @@ export const DIFFICULTIES = [
 
 export const difficultyById = (id) => DIFFICULTIES.find((d) => d.id === id) ?? null;
 
-// The hints a Pokemon has to give, in Hard and Expert; see quiz.js.
-export const HINT_MAX = 7;
+// The hints a Pokemon has to give, in Hard and Expert; see quiz.js. Seven in
+// words, and in Expert an eighth: its silhouette beside the pie. Hard shows
+// the silhouette from the start, so it stops at seven. Takes a difficulty or
+// a question, since both carry `colors`.
+export const HINT_MAX = 8;
+export const hintLimit = ({ colors } = {}) => (colors ? HINT_MAX : HINT_MAX - 1);
 // A packed log keeps a Pokemon's wrong guesses in one byte. Past this it is
 // long since down to its floor, so more are not counted.
 export const MISS_MAX = 255;

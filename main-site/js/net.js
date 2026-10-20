@@ -13,7 +13,8 @@ const PEER_PREFIX = "pokeguessr-";
 const CODE_ALPHABET = "BCDFGHJKLMNPQRSTVWXYZ23456789";
 export const CODE_LENGTH = 6;
 // 2: Expert's wrong guesses and hints, in answers and in packed logs.
-export const PROTOCOL_VERSION = 2;
+// 3: Expert can take an eighth hint, the silhouette.
+export const PROTOCOL_VERSION = 3;
 const CONNECT_TIMEOUT_MS = 15000;
 
 // STUN only. Supplying `config` replaces PeerJS's default, which includes a

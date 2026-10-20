@@ -205,9 +205,10 @@ function masked(name, keep) {
     .join("   ");
 }
 
-// The first `n` hints for a question, up to HINT_MAX: where and when it is
-// from, its types, its category, its family, its Pokedex colour and size,
-// the shape of its name, then every other letter.
+// The first `n` hints for a question, up to hintLimit(question): where and
+// when it is from, its types, its category, its family, its Pokedex colour
+// and size, the shape of its name, then every other letter. Expert has one
+// more, its silhouette, which view.js draws beside the pie.
 export function hintsFor(question, n) {
   const p = POKEMON[question.answer];
   const types = p.types.map(typeLabel);
@@ -220,11 +221,15 @@ export function hintsFor(question, n) {
     masked(p.name, (i) => i === 0),
     masked(p.name, (i) => i % 2 === 0),
   ];
+  if (question.colors) all.push(SILHOUETTE_HINT);
   return all.slice(0, n);
 }
 
+export const SILHOUETTE_HINT = "Its silhouette is showing beside the pie.";
+
 // Which hints read as a name's shape, so the page can space their letters.
 export const NAME_HINTS_FROM = 5;
+export const NAME_HINTS_TO = 7;
 
 export const artUrl = (index) => `/art/${POKEMON[index].id}.webp`;
 export const pokemonName = (index) => POKEMON[index]?.name ?? "";

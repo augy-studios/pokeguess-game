@@ -7,7 +7,7 @@
 // constants below; ms is how long it took, to the nearest 10 ms. misses and
 // hints are Hard and Expert's wrong guesses and hints before the pick, 0 in Normal.
 
-import { HINT_MAX, MISS_MAX, MS_MAX, MS_STEP, TYPED_MAX } from "./rules.js";
+import { HINT_MAX, MISS_MAX, MS_MAX, MS_STEP, TYPED_MAX, hintLimit } from "./rules.js";
 
 export const SKIP = -1; // passed on the Pokemon
 export const TIMEOUT = -2; // the Pokemon's time ran out (games with others only)
@@ -104,7 +104,7 @@ export function unpackLog(packed, game, { partial = false } = {}) {
       if (!game.difficulty.retries || at + 3 > bytes.length) return null;
       misses = bytes[at++];
       hints = bytes[at++];
-      if ((!misses && !hints) || hints > HINT_MAX) return null;
+      if ((!misses && !hints) || hints > hintLimit(game.difficulty)) return null;
       tag = bytes[at++];
     }
     let pick;
